@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Pollen\WpUser;
 
-use Psr\Container\ContainerInterface as Container;
+use InvalidArgumentException;
+use Pollen\Support\StaticProxy;
 use RuntimeException;
 use WP_User;
 use WP_User_Query;
@@ -30,16 +31,14 @@ trait WpUserProxy
     public function wpUser($query = null)
     {
         if ($this->wpUserManager === null) {
-            $container = method_exists($this, 'getContainer') ? $this->getContainer() : null;
-
-            if ($container instanceof Container && $container->has(WpUserManagerInterface::class)) {
-                $this->wpUserManager = $container->get(WpUserManagerInterface::class);
-            } else {
-                try {
-                    $this->wpUserManager = WpUserManager::getInstance();
-                } catch(RuntimeException $e) {
-                    $this->wpUserManager = new WpUserManager();
-                }
+            try {
+                $this->wpUserManager = WpUserManager::getInstance();
+            } catch (RuntimeException $e) {
+                $this->wpUserManager = StaticProxy::getProxyInstance(
+                    WpUserManagerInterface::class,
+                    WpUserManager::class,
+                    method_exists($this, 'getContainer') ? $this->getContainer() : null
+                );
             }
         }
 
@@ -55,7 +54,11 @@ trait WpUserProxy
             $query = null;
         }
 
-        return $this->wpUserManager->user($query);
+        if ($user = $this->wpUserManager->user($query)) {
+            return $user;
+        }
+
+        throw new InvalidArgumentException('WpUserQueried is unavailable');
     }
 
     /**
