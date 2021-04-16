@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pollen\WpUser;
 
-use InvalidArgumentException;
+use Pollen\Support\Exception\ProxyInvalidArgumentException;
 use Pollen\Support\StaticProxy;
 use RuntimeException;
 use WP_User;
@@ -58,7 +58,7 @@ trait WpUserProxy
             return $user;
         }
 
-        throw new InvalidArgumentException('WpUserQueried is unavailable');
+        throw new ProxyInvalidArgumentException('WpUserQueried is unavailable');
     }
 
     /**
