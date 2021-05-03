@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pollen\WpUser;
 
 use Pollen\Support\Exception\ProxyInvalidArgumentException;
-use Pollen\Support\StaticProxy;
+use Pollen\Support\ProxyResolver;
 use RuntimeException;
 use WP_User;
 use WP_User_Query;
@@ -34,7 +34,7 @@ trait WpUserProxy
             try {
                 $this->wpUserManager = WpUserManager::getInstance();
             } catch (RuntimeException $e) {
-                $this->wpUserManager = StaticProxy::getProxyInstance(
+                $this->wpUserManager = ProxyResolver::getInstance(
                     WpUserManagerInterface::class,
                     WpUserManager::class,
                     method_exists($this, 'getContainer') ? $this->getContainer() : null
