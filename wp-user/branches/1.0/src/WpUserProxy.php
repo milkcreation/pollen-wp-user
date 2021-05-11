@@ -47,14 +47,14 @@ trait WpUserProxy
         }
 
         if (is_array($query) || ($query instanceof WP_User_Query)) {
-            return $this->wpUserManager->users($query);
+            return $this->wpUserManager->fetch($query);
         }
 
         if ($query === true) {
             $query = null;
         }
 
-        if ($user = $this->wpUserManager->user($query)) {
+        if ($user = $this->wpUserManager->get($query)) {
             return $user;
         }
 

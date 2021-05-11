@@ -344,7 +344,7 @@ interface WpUserQueryInterface extends ParamsBagInterface
     /**
      * Récupération de la liste des roles.
      *
-     * @return WpUserRoleFactoryInterface[]|array
+     * @return WpUserRoleInterface[]|array
      */
     public function getRoles(): array;
 

@@ -23,6 +23,12 @@ class WpUserManager implements WpUserManagerInterface
     private static $instance;
 
     /**
+     * Instance du gestionnaire de rôles.
+     * @var WpUserRoleManagerInterface
+     */
+    protected $roleManager;
+
+    /**
      * @param array $config
      * @param Container|null $container Instance du conteneur d'injection de dépendances.
      *
@@ -69,13 +75,9 @@ class WpUserManager implements WpUserManagerInterface
                 function () {
                     global $wp_roles;
 
-                    /** @var WpUserRoleManagerInterface $roleManager */
-                    $roleManager = $this->containerHas(WpUserRoleManagerInterface::class)
-                        ? $this->containerGet(WpUserRoleManagerInterface::class) : new WpUserRoleManager();
-
                     foreach ($wp_roles->roles as $role => $data) {
-                        if (!$roleManager->get($role)) {
-                            $roleManager->register(
+                        if (!$this->roleManager()->get($role)) {
+                            $this->roleManager()->register(
                                 $role,
                                 [
                                     'display_name' => translate_user_role($data['name']),
@@ -97,7 +99,15 @@ class WpUserManager implements WpUserManagerInterface
     /**
      * @inheritDoc
      */
-    public function user($user = null): ?WpUserQueryInterface
+    public function fetch($query = null): array
+    {
+        return WpUserQuery::fetch($query);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function get($user = null): ?WpUserQueryInterface
     {
         return WpUserQuery::create($user);
     }
@@ -105,8 +115,28 @@ class WpUserManager implements WpUserManagerInterface
     /**
      * @inheritDoc
      */
-    public function users($query = null): array
+    public function getRole(string $name): ?WpUserRoleInterface
     {
-        return WpUserQuery::fetch($query);
+        return $this->roleManager()->get($name);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerRole(string $name, $roleDef = []): WpUserRoleInterface
+    {
+        return $this->roleManager()->register($name, $roleDef);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function roleManager(): WpUserRoleManagerInterface
+    {
+        if ($this->roleManager === null) {
+            $this->roleManager = $this->containerHas(WpUserRoleManagerInterface::class)
+                ? $this->containerGet(WpUserRoleManagerInterface::class) : new WpUserRoleManager($this);
+        }
+        return $this->roleManager;
     }
 }
