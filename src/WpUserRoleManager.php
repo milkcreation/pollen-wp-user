@@ -12,16 +12,25 @@ class WpUserRoleManager implements WpUserRoleManagerInterface
     use ContainerProxy;
 
     /**
+     * Instance du gestionnaire des utilisateurs Wordpress.
+     * @var WpUserManagerInterface
+     */
+    protected $wpUser;
+
+    /**
      * Liste des roles déclarés.
-     * @var WpUserRoleFactoryInterface[]|array
+     * @var WpUserRoleInterface[]|array
      */
     public $roles = [];
 
     /**
+     * @param WpUserManagerInterface $wpUser
      * @param Container|null $container
      */
-    public function __construct(?Container $container = null)
+    public function __construct(WpUserManagerInterface $wpUser, ?Container $container = null)
     {
+        $this->wpUser = $wpUser;
+
         if ($container !== null) {
             $this->setContainer($container);
         }
@@ -30,7 +39,15 @@ class WpUserRoleManager implements WpUserRoleManagerInterface
     /**
      * @inheritDoc
      */
-    public function get(string $name): ?WpUserRoleFactoryInterface
+    public function all(): array
+    {
+        return $this->roles;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function get(string $name): ?WpUserRoleInterface
     {
         return $this->roles[$name] ?? null;
     }
@@ -38,15 +55,15 @@ class WpUserRoleManager implements WpUserRoleManagerInterface
     /**
      * @inheritDoc
      */
-    public function register(string $name, $args): WpUserRoleManagerInterface
+    public function register(string $name, $roleDef): WpUserRoleInterface
     {
-        if (!$args instanceof WpUserRoleFactoryInterface) {
-            $role = new WpUserRoleFactory($name, is_array($args) ? $args : []);
+        if (!$roleDef instanceof WpUserRoleInterface) {
+            $role = new WpUserRole($name, is_array($roleDef) ? $roleDef : []);
         } else {
-            $role = $args;
+            $role = $roleDef;
         }
         $this->roles[$name] = $role;
 
-        return $this;
+        return $role;
     }
 }

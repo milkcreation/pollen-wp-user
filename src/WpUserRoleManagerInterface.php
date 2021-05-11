@@ -9,21 +9,28 @@ use Pollen\Support\Proxy\ContainerProxyInterface;
 interface WpUserRoleManagerInterface extends ContainerProxyInterface
 {
     /**
+     * Récupération de la liste des instance de rôles déclarés.
+     *
+     * @return WpUserRoleInterface[]|array
+     */
+    public function all(): array;
+
+    /**
      * Récupération d'une instance de rôle déclaré.
      *
      * @param string $name.
      *
-     * @return WpUserRoleFactoryInterface
+     * @return WpUserRoleInterface|null
      */
-    public function get(string $name): ?WpUserRoleFactoryInterface;
+    public function get(string $name): ?WpUserRoleInterface;
 
     /**
      * Déclaration d'un rôle.
      *
      * @param string $name
-     * @param WpUserRoleFactoryInterface|array $args
+     * @param WpUserRoleInterface|array $roleDef
      *
-     * @return static
+     * @return WpUserRoleInterface
      */
-    public function register(string $name, $args): WpUserRoleManagerInterface;
+    public function register(string $name, $roleDef): WpUserRoleInterface;
 }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Pollen\WpUser;
 
-use Pollen\Container\BaseServiceProvider;
+use Pollen\Container\BootableServiceProvider;
 
-class WpUserServiceProvider extends BaseServiceProvider
+class WpUserServiceProvider extends BootableServiceProvider
 {
     /**
      * @inheritDoc
@@ -31,7 +31,9 @@ class WpUserServiceProvider extends BaseServiceProvider
         $this->getContainer()->share(
             WpUserRoleManagerInterface::class,
             function () {
-                return new WpUserRoleManager($this->getContainer());
+                return new WpUserRoleManager(
+                    $this->getContainer()->get(WpUserManagerInterface::class), $this->getContainer()
+                );
             }
         );
     }
